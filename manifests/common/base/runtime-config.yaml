@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: arbeidsflate-runtime
+  labels:
+    app.kubernetes.io/part-of: arbeidsflate
+data:

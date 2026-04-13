@@ -1,0 +1,65 @@
+apiVersion: policy.linkerd.io/v1beta2
+kind: Server
+metadata:
+  name: arbeidsflate-http
+  labels:
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: arbeidsflate
+  port: 80
+  proxyProtocol: HTTP/1
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: MeshTLSAuthentication
+metadata:
+  name: arbeidsflate-mesh-authn
+  labels:
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  identities:
+    - "*"
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: NetworkAuthentication
+metadata:
+  name: arbeidsflate-network-authn
+  labels:
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  networks:
+    - cidr: 0.0.0.0/0
+    - cidr: ::/0
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata:
+  name: arbeidsflate-allow-meshed
+  labels:
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  targetRef:
+    group: policy.linkerd.io
+    kind: Server
+    name: arbeidsflate-http
+  requiredAuthenticationRefs:
+    - group: policy.linkerd.io
+      kind: MeshTLSAuthentication
+      name: arbeidsflate-mesh-authn
+---
+apiVersion: policy.linkerd.io/v1alpha1
+kind: AuthorizationPolicy
+metadata:
+  name: arbeidsflate-allow-network
+  labels:
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  targetRef:
+    group: policy.linkerd.io
+    kind: Server
+    name: arbeidsflate-http
+  requiredAuthenticationRefs:
+    - group: policy.linkerd.io
+      kind: NetworkAuthentication
+      name: arbeidsflate-network-authn

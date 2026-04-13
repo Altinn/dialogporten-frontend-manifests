@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-runtime
+  labels:
+    app.kubernetes.io/instance: tt02
+data:
+  DIALOGPORTEN_STREAM_URL: https://altinn-tt02-api.azure-api.net/dialogporten/graphql/stream
