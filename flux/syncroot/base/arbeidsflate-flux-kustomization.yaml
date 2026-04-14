@@ -1,0 +1,13 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: arbeidsflate-apps
+  namespace: product-arbeidsflate
+spec:
+  interval: 10m
+  path: ./environments/at23
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: arbeidsflate-manifests
+  targetNamespace: product-arbeidsflate

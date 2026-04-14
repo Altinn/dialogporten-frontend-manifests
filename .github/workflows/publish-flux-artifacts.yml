@@ -1,0 +1,117 @@
+name: Publish Flux artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  SYNCROOT_ARTIFACT_NAME: arbeidsflate/syncroot
+  APP_ARTIFACT_NAME: arbeidsflate/arbeidsflate-sync
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-flux-artifacts-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish-syncroot:
+    name: Publish syncroot artifact
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Validate syncroot structure
+        shell: bash
+        run: |
+          for dir in ./manifests/environments/*/; do
+            env=$(basename "$dir")
+            if [ ! -f "./flux/syncroot/${env}/kustomization.yaml" ]; then
+              echo "Error: Missing ./flux/syncroot/${env}/kustomization.yaml"
+              exit 1
+            fi
+          done
+
+      - name: Build and push syncroot artifact
+        uses: Altinn/altinn-platform/actions/flux/build-push-image@9ab5906e1fca77e6175546fd5440aef1594717c6 # main
+        with:
+          image_name: ${{ env.SYNCROOT_ARTIFACT_NAME }}
+          tag: at23
+          workdir: ./flux/syncroot
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}
+
+  publish-app-manifests:
+    name: Publish app manifests artifact
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Validate app manifests structure
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for dir in ./manifests/environments/*/; do
+            env=$(basename "$dir")
+            if [ ! -f "./manifests/environments/${env}/kustomization.yaml" ]; then
+              echo "Error: Missing ./manifests/environments/${env}/kustomization.yaml"
+              exit 1
+            fi
+          done
+
+          for dir in ./manifests/apps/*/ ./manifests/jobs/*/; do
+            if [ ! -f "${dir}base/kustomization.yaml" ]; then
+              echo "Error: Missing ${dir}base/kustomization.yaml"
+              exit 1
+            fi
+          done
+
+          if [ -d "./manifests/apps/components" ] || [ -d "./manifests/apps/base" ]; then
+            echo "Error: Legacy app manifest paths detected (manifests/apps/components or manifests/apps/base)."
+            exit 1
+          fi
+
+          if grep -R --include='kustomization.yaml' -n 'patchesStrategicMerge' ./manifests/environments; then
+            echo "Error: Found deprecated patchesStrategicMerge usage."
+            exit 1
+          fi
+
+          build_kustomize() {
+            local path="$1"
+            if command -v kustomize >/dev/null 2>&1; then
+              kustomize build "$path" >/dev/null
+              return
+            fi
+            if command -v kubectl >/dev/null 2>&1; then
+              kubectl kustomize "$path" >/dev/null
+              return
+            fi
+            echo "Error: Neither 'kustomize' nor 'kubectl' found in runner PATH."
+            exit 1
+          }
+
+          for dir in ./manifests/environments/*/; do
+            env=$(basename "$dir")
+            build_kustomize "./manifests/environments/${env}"
+            build_kustomize "./flux/syncroot/${env}"
+          done
+
+      - name: Build and push app manifests artifact
+        uses: Altinn/altinn-platform/actions/flux/build-push-image@9ab5906e1fca77e6175546fd5440aef1594717c6 # main
+        with:
+          image_name: ${{ env.APP_ARTIFACT_NAME }}
+          tag: main
+          workdir: ./manifests
+          azure_subscription_id: ${{ secrets.DIS_SYNCROOT_AZURE_SUBSCRIPTION_ID }}
+          azure_app_id: ${{ secrets.DIS_SYNCROOT_AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.DIS_SYNCROOT_AZURE_TENANT_ID }}

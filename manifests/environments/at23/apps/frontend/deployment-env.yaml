@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-runtime
+  labels:
+    app.kubernetes.io/instance: at23
+data:
+  DIALOGPORTEN_STREAM_URL: https://discore-at22-s79uoo-apim.azure-api.net/dialogporten/graphql/stream

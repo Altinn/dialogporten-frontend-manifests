@@ -1,0 +1,232 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bff
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bff
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bff
+        app.kubernetes.io/part-of: arbeidsflate
+        azure.workload.identity/use: "true"
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        linkerd.io/inject: enabled
+    spec:
+      serviceAccountName: bff
+      containers:
+        - name: bff
+          image: ghcr.io/altinn/dialogporten-frontend-node-bff:set-by-ci
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: bff-runtime
+          env:
+            - name: DB_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: databaseConnectionString
+            - name: REDIS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: redisConnectionString
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: oidcClientId
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: oidcClientSecret
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: idPortenSessionSecret
+            - name: APP_CONFIG_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: appConfigConnectionString
+            - name: ALTINN2_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: altinn2ApiKey
+            - name: OCP_APIM_SUBSCRIPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bff-secrets
+                  key: ocpApimSubscriptionKey
+            - name: PORT
+              value: "80"
+            - name: NODE_ENV
+              value: production
+            - name: LOGGER_FORMAT
+              value: json
+            - name: TYPEORM_SYNCHRONIZE_ENABLED
+              value: ""
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-collector.monitoring.svc.cluster.local:4317
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+            - name: OTEL_SERVICE_NAME
+              value: dialogporten-frontend-bff
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.uid
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "k8s.pod.uid=$(POD_UID)"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bff-runtime
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+data:
+  HOSTNAME: set-by-env
+  OIDC_URL: set-by-env
+  OIDC_PLATFORM_URL: set-by-env
+  DIALOGPORTEN_URL: set-by-env
+  ENABLE_GRAPHIQL: set-by-env
+  ENABLE_INIT_SESSION_ENDPOINT: set-by-env
+  PLATFORM_BASEURL: set-by-env
+  AUTH_CONTEXT_COOKIE_DOMAIN: set-by-env
+  ALTINN2_BASE_URL: set-by-env
+  LOGOUT_REDIRECT_URI: set-by-env
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: bff-secrets
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: arbeidsflate-azure-kv
+  target:
+    name: bff-secrets
+    creationPolicy: Owner
+  data:
+    - secretKey: databaseConnectionString
+      remoteRef:
+        key: databaseConnectionString
+    - secretKey: redisConnectionString
+      remoteRef:
+        key: redisConnectionString
+    - secretKey: oidcClientId
+      remoteRef:
+        key: oidcClientId
+    - secretKey: oidcClientSecret
+      remoteRef:
+        key: oidcClientSecret
+    - secretKey: idPortenSessionSecret
+      remoteRef:
+        key: idPortenSessionSecret
+    - secretKey: appConfigConnectionString
+      remoteRef:
+        key: appConfigConnectionString
+    - secretKey: altinn2ApiKey
+      remoteRef:
+        key: altinn2ApiKey
+    - secretKey: ocpApimSubscriptionKey
+      remoteRef:
+        key: ocpApimSubscriptionKey
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bff
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  selector:
+    app.kubernetes.io/name: bff
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bff
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
+  rules:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: bff
+          port: 80
+      filters:
+        - requestHeaderModifier:
+            set:
+              - name: l5d-dst-override
+                value: bff.product-arbeidsflate.svc.cluster.local:80
+          type: RequestHeaderModifier
+      matches:
+        - path:
+            type: PathPrefix
+            value: /api
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bff
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bff
+  maxReplicas: 3
+---
+apiVersion: application.dis.altinn.cloud/v1alpha1
+kind: ApplicationIdentity
+metadata:
+  name: bff
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec: {}

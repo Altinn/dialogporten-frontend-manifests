@@ -1,0 +1,11 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: arbeidsflate-manifests
+  namespace: product-arbeidsflate
+spec:
+  interval: 10m
+  provider: azure
+  url: oci://altinncr.azurecr.io/arbeidsflate/arbeidsflate-sync
+  ref:
+    tag: main

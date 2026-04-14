@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bff
+spec:
+  template:
+    spec:
+      containers:
+        - name: bff
+          env:
+            - name: OTEL_TRACES_SAMPLER_ARG
+              value: "0.05"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bff-runtime
+  labels:
+    app.kubernetes.io/instance: yt01
+data:
+  HOSTNAME: https://af.yt01.altinn.cloud
+  OIDC_URL: test.idporten.no
+  OIDC_PLATFORM_URL: platform.yt01.altinn.cloud/authentication/api/v1/openid
+  DIALOGPORTEN_URL: https://platform.yt01.altinn.cloud/dialogporten
+  ENABLE_GRAPHIQL: "true"
+  PLATFORM_BASEURL: https://platform.yt01.altinn.cloud
+  AUTH_CONTEXT_COOKIE_DOMAIN: .yt01.altinn.cloud
+  ALTINN2_BASE_URL: https://yt01.altinn.cloud

@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bff-migration-job
+  labels:
+    app.kubernetes.io/name: bff-migration-job
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  schedule: "0 0 1 1 *"
+  suspend: true
+  # Prevent retroactive runs if someone temporarily unsuspends the CronJob.
+  # On-demand execution should be done by creating a Job from this template.
+  startingDeadlineSeconds: 60
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 86400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: bff-migration-job
+            app.kubernetes.io/part-of: arbeidsflate
+        spec:
+          restartPolicy: Never
+          serviceAccountName: bff-migration-job
+          containers:
+            - name: bff-migration-job
+              image: ghcr.io/altinn/dialogporten-frontend-node-bff:set-by-ci
+              command: ["pnpm", "--filter", "bff", "run", "start"]
+              env:
+                - name: MIGRATION_RUN
+                  value: "true"
+                - name: NODE_ENV
+                  value: production
+                - name: LOGGER_FORMAT
+                  value: json
+                - name: DB_CONNECTION_STRING
+                  valueFrom:
+                    secretKeyRef:
+                      name: arbeidsflate-secrets
+                      key: databaseConnectionString
+                - name: OTEL_EXPORTER_OTLP_ENDPOINT
+                  value: http://otel-collector.monitoring.svc.cluster.local:4317
+                - name: OTEL_EXPORTER_OTLP_PROTOCOL
+                  value: grpc
+                - name: OTEL_SERVICE_NAME
+                  value: dialogporten-frontend-bff-migration-job
+                - name: POD_UID
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.uid
+                - name: OTEL_RESOURCE_ATTRIBUTES
+                  value: "k8s.pod.uid=$(POD_UID)"
