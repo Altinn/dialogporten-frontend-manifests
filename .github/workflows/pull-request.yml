@@ -45,7 +45,31 @@ jobs:
             exit 1
           fi
 
+  check-base:
+    name: Check if base branch has manifests
+    runs-on: ubuntu-latest
+    outputs:
+      has-manifests: ${{ steps.check.outputs.has-manifests }}
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Check for manifests
+        id: check
+        shell: bash
+        run: |
+          if [ -d "manifests/environments" ] && [ -n "$(ls -A manifests/environments 2>/dev/null)" ]; then
+            echo "has-manifests=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-manifests=false" >> "$GITHUB_OUTPUT"
+            echo "Base branch has no manifests — skipping kustomize-diff (initial bootstrap PR)."
+          fi
+
   kustomize-diff:
+    needs: check-base
+    if: needs.check-base.outputs.has-manifests == 'true'
     uses: dis-way/actions/.github/workflows/kustomize-diff.yml@87a3c5e6a95eb24448d8bf4884ea2fcd9b9c0ced # main
     with:
       build-paths: "manifests/environments/*,flux/syncroot/*"
