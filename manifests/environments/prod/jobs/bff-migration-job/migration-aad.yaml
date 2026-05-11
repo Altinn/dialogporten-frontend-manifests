@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bff-migration-job
+spec:
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            azure.workload.identity/use: "true"
+        spec:
+          serviceAccountName: bff
+          containers:
+            - name: bff-migration-job
+              env:
+                - name: DB_USE_AAD_AUTH
+                  value: "true"
+                - name: DB_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: bff-db-runtime
+                      key: DB_HOST
+                - name: DB_PORT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: bff-db-runtime
+                      key: DB_PORT
+                - name: DB_NAME
+                  valueFrom:
+                    configMapKeyRef:
+                      name: bff-db-runtime
+                      key: DB_NAME
+                - name: DB_USER
+                  valueFrom:
+                    configMapKeyRef:
+                      name: bff-db-runtime
+                      key: DB_USER

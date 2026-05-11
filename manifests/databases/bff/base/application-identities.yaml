@@ -1,0 +1,8 @@
+apiVersion: application.dis.altinn.cloud/v1alpha1
+kind: ApplicationIdentity
+metadata:
+  name: bff-db-admin
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec: {}
