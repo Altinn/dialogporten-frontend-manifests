@@ -8,5 +8,5 @@ metadata:
 data:
   DB_HOST: bff.postgres.database.azure.com
   DB_PORT: "5432"
-  DB_NAME: arbeidsflate-yt01-bff
+  DB_NAME: bff
   DB_USER: bff
