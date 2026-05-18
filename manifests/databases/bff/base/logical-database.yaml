@@ -1,0 +1,22 @@
+apiVersion: storage.dis.altinn.cloud/v1alpha1
+kind: LogicalDatabase
+metadata:
+  name: bff-db
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  serverRef:
+    name: bff
+  databaseKey: bff
+  tenant:
+    id: arbeidsflate
+    environment: placeholder
+  access:
+    app:
+      name: bff
+      principalId: "00000000-0000-0000-0000-000000000000"
+    owner:
+      name: bff-db-admin
+      principalId: "00000000-0000-0000-0000-000000000000"
+  deletionPolicy: Retain

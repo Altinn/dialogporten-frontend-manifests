@@ -6,7 +6,6 @@ metadata:
     app.kubernetes.io/name: bff
     app.kubernetes.io/part-of: arbeidsflate
 spec:
-  mode: Dedicated
   version: 17
   auth:
     admin:

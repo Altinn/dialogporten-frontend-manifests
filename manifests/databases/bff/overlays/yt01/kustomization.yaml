@@ -4,3 +4,4 @@ resources:
   - ../../base
 patches:
   - path: database-patch.yaml
+  - path: logical-database-patch.yaml
