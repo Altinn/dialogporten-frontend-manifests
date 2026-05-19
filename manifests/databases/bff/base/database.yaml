@@ -1,0 +1,27 @@
+apiVersion: storage.dis.altinn.cloud/v1alpha1
+kind: Database
+metadata:
+  name: bff
+  labels:
+    app.kubernetes.io/name: bff
+    app.kubernetes.io/part-of: arbeidsflate
+spec:
+  mode: Dedicated
+  version: 17
+  auth:
+    admin:
+      identity:
+        identityRef:
+          name: bff-db-admin
+    user:
+      identity:
+        identityRef:
+          name: bff
+  enableExtensions:
+    - pg_stat_statements
+  serverType: dev
+  storage:
+    sizeGB: 32
+    tier: Burstable_Standard_B2ms
+  highAvailabilityEnabled: false
+  backupRetentionDays: 14

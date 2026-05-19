@@ -5,6 +5,7 @@ resources:
   - ../../common/base
   - apps
   - jobs
+  - ../../databases/bff/overlays/prod
 patches:
   - path: secretstore-vault-url.yaml
 images:

@@ -4,3 +4,4 @@ resources:
   - ../../../../jobs/bff-migration-job/base
 patches:
   - path: env.yaml
+  - path: migration-aad.yaml
