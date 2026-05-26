@@ -1,5 +1,5 @@
 apiVersion: storage.dis.altinn.cloud/v1alpha1
-kind: Database
+kind: DatabaseServer
 metadata:
   name: bff
   labels:
@@ -13,15 +13,10 @@ spec:
       identity:
         identityRef:
           name: bff-db-admin
-    user:
-      identity:
-        identityRef:
-          name: bff
   enableExtensions:
     - pg_stat_statements
   serverType: dev
   storage:
     sizeGB: 32
-    tier: Burstable_Standard_B2ms
   highAvailabilityEnabled: false
   backupRetentionDays: 14

@@ -1,11 +1,10 @@
 apiVersion: storage.dis.altinn.cloud/v1alpha1
-kind: Database
+kind: DatabaseServer
 metadata:
   name: bff
 spec:
   serverType: prod
   storage:
     sizeGB: 128
-    tier: GeneralPurpose_Standard_D4s_v3
   highAvailabilityEnabled: true
   backupRetentionDays: 30
