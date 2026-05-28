@@ -64,11 +64,11 @@ spec:
                 secretKeyRef:
                   name: bff-secrets
                   key: altinn2ApiKey
-            - name: OCP_APIM_SUBSCRIPTION_KEY
+            - name: PERSON_URN_ENC_KEYS
               valueFrom:
                 secretKeyRef:
                   name: bff-secrets
-                  key: ocpApimSubscriptionKey
+                  key: personUrnEncryptionKey
             - name: PORT
               value: "80"
             - name: NODE_ENV
@@ -159,9 +159,9 @@ spec:
     - secretKey: altinn2ApiKey
       remoteRef:
         key: altinn2ApiKey
-    - secretKey: ocpApimSubscriptionKey
+    - secretKey: personUrnEncryptionKey
       remoteRef:
-        key: ocpApimSubscriptionKey
+        key: PersonUrnEncryptionKey
 ---
 apiVersion: v1
 kind: Service

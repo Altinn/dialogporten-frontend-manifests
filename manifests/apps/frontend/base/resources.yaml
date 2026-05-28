@@ -31,11 +31,6 @@ spec:
           env:
             - name: NODE_ENV
               value: production
-            - name: APPLICATION_INSIGHTS_INSTRUMENTATION_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: arbeidsflate-secrets
-                  key: applicationInsightsInstrumentationKey
             - name: APPLICATION_INSIGHTS_DISABLE_DEPENDENCY_TRACKING
               value: "true"
           livenessProbe:
