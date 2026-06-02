@@ -4,3 +4,17 @@ resources:
   - ../../base
 patches:
   - path: database-patch.yaml
+  - target:
+      kind: DatabaseServer
+      name: bff
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: arbeidsflate-bff-yt01
+  - target:
+      kind: Database
+      name: bff
+    patch: |-
+      - op: replace
+        path: /spec/server/name
+        value: arbeidsflate-bff-yt01
