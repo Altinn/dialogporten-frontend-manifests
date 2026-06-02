@@ -13,20 +13,20 @@ spec:
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: bff-db-runtime
-                  key: DB_HOST
+                  name: bff-bff-dis-pgsql
+                  key: host
             - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: bff-db-runtime
-                  key: DB_PORT
+                  name: bff-bff-dis-pgsql
+                  key: port
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: bff-db-runtime
-                  key: DB_NAME
+                  name: bff-bff-dis-pgsql
+                  key: dbname
             - name: DB_USER
               valueFrom:
                 configMapKeyRef:
-                  name: bff-db-runtime
-                  key: DB_USER
+                  name: bff-bff-dis-pgsql
+                  key: user
