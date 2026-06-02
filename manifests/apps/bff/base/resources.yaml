@@ -92,13 +92,13 @@ spec:
               value: "k8s.pod.uid=$(POD_UID)"
           livenessProbe:
             httpGet:
-              path: /
+              path: /api/liveness
               port: 80
             initialDelaySeconds: 10
             periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/readiness
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
