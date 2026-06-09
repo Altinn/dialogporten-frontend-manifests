@@ -21,7 +21,7 @@ data:
   HOSTNAME: https://af.at23.altinn.cloud
   OIDC_URL: test.idporten.no
   OIDC_PLATFORM_URL: platform.at23.altinn.cloud/authentication/api/v1/openid
-  DIALOGPORTEN_URL: https://discore-at22-s79uoo-apim.azure-api.net/dialogporten
+  DIALOGPORTEN_URL: http://graphql.product-dialogporten.svc.cluster.local
   ENABLE_GRAPHIQL: "true"
   PLATFORM_BASEURL: https://platform.at23.altinn.cloud
   AUTH_CONTEXT_COOKIE_DOMAIN: .at23.altinn.cloud
