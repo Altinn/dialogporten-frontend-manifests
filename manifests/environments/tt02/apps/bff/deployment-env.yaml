@@ -21,7 +21,7 @@ data:
   HOSTNAME: https://af.tt02.altinn.no
   OIDC_URL: test.idporten.no
   OIDC_PLATFORM_URL: platform.tt02.altinn.no/authentication/api/v1/openid
-  DIALOGPORTEN_URL: https://altinn-tt02-api.azure-api.net/dialogporten
+  DIALOGPORTEN_URL: http://graphql.product-dialogporten.svc.cluster.local
   ENABLE_GRAPHIQL: "true"
   PLATFORM_BASEURL: https://platform.tt02.altinn.no
   AUTH_CONTEXT_COOKIE_DOMAIN: .tt02.altinn.no
