@@ -4,4 +4,4 @@ metadata:
   name: bff
 spec:
   hostnames:
-    - arbeidsflate.at22.dis-core.altinn.cloud
+    - arbeidsflate.at23.dis-core.altinn.cloud

@@ -5,6 +5,7 @@ resources:
   - ../../common/base
   - apps
   - jobs
+  - apim
   - ../../databases/bff/overlays/at23
 patches:
   - path: secretstore-vault-url.yaml

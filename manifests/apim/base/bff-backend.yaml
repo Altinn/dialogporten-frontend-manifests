@@ -1,0 +1,8 @@
+apiVersion: apim.dis.altinn.cloud/v1alpha1
+kind: Backend
+metadata:
+  name: arbeidsflate-bff
+spec:
+  title: arbeidsflate-bff
+  description: Arbeidsflate backend-for-frontend API
+  url: set-by-env
