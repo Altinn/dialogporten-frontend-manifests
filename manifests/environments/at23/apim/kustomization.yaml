@@ -9,25 +9,25 @@ patches:
     patch: |
       - op: replace
         path: /spec/url
-        value: https://arbeidsflate.at22.dis-core.altinn.cloud
+        value: https://arbeidsflate.at23.dis-core.altinn.cloud
   - target:
       kind: Api
       name: arbeidsflate-frontend
     patch: |
       - op: replace
         path: /spec/versions/0/serviceUrl
-        value: https://arbeidsflate.at22.dis-core.altinn.cloud
+        value: https://arbeidsflate.at23.dis-core.altinn.cloud
   - target:
       kind: Backend
       name: arbeidsflate-bff
     patch: |
       - op: replace
         path: /spec/url
-        value: https://arbeidsflate.at22.dis-core.altinn.cloud/api
+        value: https://arbeidsflate.at23.dis-core.altinn.cloud/api
   - target:
       kind: Api
       name: arbeidsflate-bff
     patch: |
       - op: replace
         path: /spec/versions/0/serviceUrl
-        value: https://arbeidsflate.at22.dis-core.altinn.cloud/api
+        value: https://arbeidsflate.at23.dis-core.altinn.cloud/api
