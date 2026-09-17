@@ -11,6 +11,6 @@ patches:
   - path: secretstore-vault-url.yaml
 images:
   - name: ghcr.io/altinn/dialogporten-frontend-frontend
-    newTag: 1.176.2-27306ac
+    newTag: 1.176.2-5156dfc
   - name: ghcr.io/altinn/dialogporten-frontend-node-bff
-    newTag: 1.176.2-27306ac
+    newTag: 1.176.2-5156dfc
