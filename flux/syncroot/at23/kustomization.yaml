@@ -14,3 +14,14 @@ patches:
         namespace: product-arbeidsflate
       spec:
         path: ./environments/at23
+  - target:
+      kind: Kustomization
+      name: arbeidsflate-frontend
+    patch: |-
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata:
+        name: arbeidsflate-frontend
+        namespace: product-arbeidsflate
+      spec:
+        path: ./environments/at23/frontend

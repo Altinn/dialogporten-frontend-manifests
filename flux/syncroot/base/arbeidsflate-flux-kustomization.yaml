@@ -1,3 +1,5 @@
+# Applies everything except the frontend Deployment. It is only Ready once the bff
+# Deployment has rolled out, which arbeidsflate-frontend waits for.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -6,6 +8,30 @@ metadata:
 spec:
   interval: 10m
   path: ./environments/at23
+  prune: true
+  sourceRef:
+    kind: OCIRepository
+    name: arbeidsflate-manifests
+  targetNamespace: product-arbeidsflate
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: bff
+      namespace: product-arbeidsflate
+---
+# Rolls out the frontend Deployment only after arbeidsflate-apps has applied the same
+# artifact revision and the bff is healthy, so a new frontend never runs against an
+# old bff. If the bff rollout fails, the frontend stays on its previous version.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: arbeidsflate-frontend
+  namespace: product-arbeidsflate
+spec:
+  interval: 10m
+  dependsOn:
+    - name: arbeidsflate-apps
+  path: ./environments/at23/frontend
   prune: true
   sourceRef:
     kind: OCIRepository
