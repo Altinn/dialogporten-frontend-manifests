@@ -27,10 +27,12 @@ jobs:
 
           for dir in ./manifests/environments/*/; do
             env=$(basename "$dir")
-            if [ ! -f "./manifests/environments/${env}/kustomization.yaml" ]; then
-              echo "Error: Missing ./manifests/environments/${env}/kustomization.yaml"
-              exit 1
-            fi
+            for file in "./manifests/environments/${env}/kustomization.yaml" "./manifests/environments/${env}/frontend/kustomization.yaml"; do
+              if [ ! -f "$file" ]; then
+                echo "Error: Missing ${file}"
+                exit 1
+              fi
+            done
           done
 
           for dir in ./manifests/apps/*/ ./manifests/jobs/*/; do
@@ -50,9 +52,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          # flux/syncroot/base pins spec.path to one environment, so every overlay
-          # must patch it. An overlay that forgets silently deploys the base
-          # environment's manifests instead of its own.
+          # flux/syncroot/base pins spec.path of both Flux Kustomizations to one
+          # environment, so every overlay must patch them. An overlay that forgets
+          # silently deploys the base environment's manifests instead of its own.
           for dir in ./manifests/environments/*/; do
             env=$(basename "$dir")
             overlay="./flux/syncroot/${env}/kustomization.yaml"
@@ -62,16 +64,18 @@ jobs:
               exit 1
             fi
 
-            if ! grep -qE "^[[:space:]]*path:[[:space:]]*\./environments/${env}[[:space:]]*$" "$overlay"; then
-              echo "::error::${overlay} does not patch spec.path to ./environments/${env}"
-              exit 1
-            fi
+            for path in "./environments/${env}" "./environments/${env}/frontend"; do
+              if ! grep -qE "^[[:space:]]*path:[[:space:]]*${path//./\\.}[[:space:]]*$" "$overlay"; then
+                echo "::error::${overlay} does not patch a spec.path to ${path}"
+                exit 1
+              fi
+            done
           done
 
   kustomize-diff:
     uses: dis-way/actions/.github/workflows/kustomize-diff.yml@45eae05af29ddb403645fc226d22ce63d3ca1ed4 # main
     with:
-      build-paths: "manifests/environments/*,flux/syncroot/*"
+      build-paths: "manifests/environments/*,manifests/environments/*/frontend,flux/syncroot/*"
     permissions:
       contents: read
       pull-requests: write

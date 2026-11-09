@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: product-arbeidsflate
+resources:
+  - ../../../apps/frontend/deployment
+images:
+  - name: ghcr.io/altinn/dialogporten-frontend-frontend
+    newTag: 1.185.2-fb8b7b7
