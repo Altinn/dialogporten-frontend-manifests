@@ -1,11 +1,12 @@
-# Linkerd inbound authorization for arbeidsflate pods (port 80).
+# Linkerd inbound authorization for arbeidsflate pods (the container port named
+# `http`: 8080 on frontend, 80 on bff).
 #
 # The cluster runs `defaultInboundPolicy: deny`, so this Server's port is
 # default-deny. Two ways in are authorized:
 #   1. Mesh (mTLS) identity — internal arbeidsflate components (frontend, bff)
 #      and traefik ingress. This is how all real traffic arrives.
 #   2. The kubelet, for liveness/readiness probes (frontend `/`, bff
-#      `/api/liveness` + `/api/readiness`), which hit port 80 directly and are
+#      `/api/liveness` + `/api/readiness`), which hit the `http` port directly and are
 #      unmeshed. Scoped to the node subnet — on dis-core clusters the nodes
 #      live in 10.205.0.0/16 (+ fd12:2291:d70a::/48), deliberately NOT the pod
 #      subnet (10.240.0.0/16 / fd10:…), so pods cannot bypass mesh auth via the
@@ -21,7 +22,7 @@ spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/part-of: arbeidsflate
-  port: 80
+  port: http
   proxyProtocol: HTTP/1
 ---
 apiVersion: policy.linkerd.io/v1alpha1

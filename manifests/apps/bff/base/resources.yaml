@@ -24,7 +24,8 @@ spec:
         - name: bff
           image: ghcr.io/altinn/dialogporten-frontend-node-bff:set-by-ci
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 80
           envFrom:
             - configMapRef:
                 name: bff-runtime
