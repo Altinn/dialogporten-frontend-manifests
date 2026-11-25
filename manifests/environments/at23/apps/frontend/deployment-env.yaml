@@ -5,4 +5,4 @@ metadata:
   labels:
     app.kubernetes.io/instance: at23
 data:
-  DIALOGPORTEN_STREAM_URL: https://discore-at22-s79uoo-apim.azure-api.net/dialogporten/graphql/stream
+  DIALOGPORTEN_STREAM_URL: https://discore-at23-m22d0r-apim.azure-api.net/dialogporten/graphql/stream
