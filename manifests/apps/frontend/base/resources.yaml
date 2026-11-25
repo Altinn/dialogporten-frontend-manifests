@@ -24,7 +24,8 @@ spec:
         - name: frontend
           image: ghcr.io/altinn/dialogporten-frontend-frontend:set-by-ci
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 8080
           envFrom:
             - configMapRef:
                 name: frontend-runtime
@@ -36,13 +37,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: http
             initialDelaySeconds: 10
             periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: http
             initialDelaySeconds: 5
             periodSeconds: 10
 ---
@@ -69,7 +70,7 @@ spec:
   ports:
     - name: http
       port: 80
-      targetPort: 80
+      targetPort: http
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
